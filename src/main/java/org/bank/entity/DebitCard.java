@@ -6,7 +6,17 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-public class CreditCard extends BaseEntity {
+public class DebitCard extends BaseEntity {
+    public DebitCard() {
+    }
+
+    public DebitCard(Account account, int cvv2, LocalDate expirationDate) {
+        this.account = account;
+        this.cvv2 = cvv2;
+        this.expirationDate = expirationDate;
+    }
+
+
     @Id
     private String cardNumber;
     @OneToOne
@@ -15,4 +25,5 @@ public class CreditCard extends BaseEntity {
     private int cvv2;
     @Column(nullable = false)
     private LocalDate expirationDate;
+
 }

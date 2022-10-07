@@ -4,29 +4,30 @@ import org.bank.base.entity.BaseEntity;
 import org.bank.base.repository.BaseRepository;
 
 import java.io.Serializable;
+import java.util.Optional;
 
-public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R extends BaseRepository<E, ID>> implements BaseService<E, ID, R> {
-    BaseRepository<E,ID> baseRepository;
-    public BaseServiceImpl(BaseRepository<E,ID> baseRepository) {
-        this.baseRepository = baseRepository;
+public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R extends BaseRepository<E, ID>> implements BaseService<E, ID, R> {
+    protected BaseRepository<E,ID> repository;
+    public BaseServiceImpl(R repository) {
+        this.repository = repository;
     }
     @Override
     public void save(E e) {
-        baseRepository.create(e);
+        repository.create(e);
     }
 
     @Override
-    public E load(ID id) {
-        return baseRepository.read(id);
+    public Optional<E> load(ID id) {
+        return repository.read(id);
     }
 
     @Override
     public void update(E e) {
-        baseRepository.update(e);
+        repository.update(e);
     }
 
     @Override
     public void delete(E e) {
-        baseRepository.delete(e);
+        repository.delete(e);
     }
 }

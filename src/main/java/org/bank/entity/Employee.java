@@ -6,8 +6,11 @@ import javax.persistence.*;
 
 @Entity
 public class Employee extends Person {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    public Employee(String firstName, String lastName, String address, String nationalCode, String phoneNumber) {
+        super(firstName, lastName, address, nationalCode, phoneNumber);
+    }
+
+    public Employee() {
+    }
 
 }
