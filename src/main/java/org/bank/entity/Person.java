@@ -21,6 +21,7 @@ public abstract class Person extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+
     @Column(nullable = false)
     private String firstName;
     @Column(nullable = false)

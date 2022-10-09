@@ -7,21 +7,22 @@ import org.bank.repository.impl.CustomerRepoImpl;
 import org.bank.service.CustomerService;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.Optional;
 
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, Long, CustomerRepo> implements CustomerService {
-    CustomerRepo repository;
 
-
-    public CustomerServiceImpl(EntityManager entityManager) {
-        super(new CustomerRepoImpl(entityManager));
-        repository = new CustomerRepoImpl(entityManager);
+    public CustomerServiceImpl(CustomerRepo customerRepo) {
+        super(customerRepo);
     }
 
 
     @Override
     public Optional<Customer> load(String nationalCode) {
-        return repository.read(nationalCode);
+        try {
+            return repository.read(nationalCode);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
-
 }

@@ -1,9 +1,11 @@
 package org.bank.entity;
 
 import org.bank.base.entity.BaseEntity;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class Transaction extends BaseEntity {
@@ -11,30 +13,38 @@ public class Transaction extends BaseEntity {
 
     }
 
-    public Transaction(Account account, TransactionType type, TransactionStatus status, LocalDate date) {
+    public Transaction(Account account, TransactionType type, TransactionStatus status,double amount) {
         this.account = account;
         this.type = type;
         this.status = status;
-        this.date = date;
+        this.amount= amount;
     }
 
-    public Transaction(TransactionType type, TransactionStatus status, LocalDate date) {
+    public Transaction(TransactionType type, TransactionStatus status, double amount) {
         this.type = type;
         this.status = status;
-        this.date = date;
+        this.amount = amount;
+    }
+
+    public Transaction(TransactionType type, double amount) {
+        this.type = type;
+        this.amount = amount;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @ManyToOne
     private Account account;
     @Enumerated(value = EnumType.STRING)
     private TransactionType type;
+    @Enumerated(value = EnumType.STRING)
     private TransactionStatus status;
-    private LocalDate date;
+    private double amount;
+    @CreationTimestamp
+    private LocalDateTime time;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -66,11 +76,19 @@ public class Transaction extends BaseEntity {
         this.status = status;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime date) {
+        this.time = date;
     }
 }

@@ -1,7 +1,6 @@
 package org.bank.repository.impl;
 
 import org.bank.base.repository.BaseRepositoryImpl;
-import org.bank.entity.Account;
 import org.bank.entity.Customer;
 import org.bank.repository.CustomerRepo;
 

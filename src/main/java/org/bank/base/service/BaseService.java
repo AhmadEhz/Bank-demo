@@ -11,4 +11,5 @@ public interface BaseService <E extends BaseEntity ,ID extends Serializable, R e
     Optional<E> load(ID id);
     void update(E e);
     void delete(E e);
+    boolean isExist(ID id);
 }

@@ -11,4 +11,6 @@ public interface BaseRepository<E extends Serializable,ID extends Serializable>{
     void update (E e);
     void delete (E e);
     Class<E> getEntityClass();
+    EntityManager getEntityManager();
+
 }

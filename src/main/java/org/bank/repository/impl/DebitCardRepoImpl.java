@@ -5,6 +5,7 @@ import org.bank.entity.DebitCard;
 import org.bank.repository.DebitCardRepo;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 public class DebitCardRepoImpl extends BaseRepositoryImpl<DebitCard, String> implements DebitCardRepo {
 
@@ -17,4 +18,8 @@ public class DebitCardRepoImpl extends BaseRepositoryImpl<DebitCard, String> imp
         return DebitCard.class;
     }
 
+    @Override
+    public boolean checkCvv2(DebitCard debitCard) {
+        return debitCard.getCvv2() == entityManager.createQuery("select cvv2 from DebitCard where cardNumber = :cardNum", Integer.class).setParameter("cardNum", debitCard.getCvv2()).getSingleResult();
+    }
 }

@@ -27,4 +27,9 @@ public abstract class BaseRepositoryImpl<E extends Serializable, ID extends Seri
    }
    @Override
    public abstract Class<E> getEntityClass();
+   @Override
+   public EntityManager getEntityManager() {
+      return entityManager;
+   }
+   
 }
