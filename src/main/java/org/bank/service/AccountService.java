@@ -15,5 +15,10 @@ public interface AccountService extends BaseService<Account, String, AccountRepo
 
     double takeInventory(Account account);
 
+    double takeInventory(String accountNumber, String password);
+
     Optional<Account> load(DebitCard debitCard);
+
+
+    Optional<Account> load(String accountNumber, String password);
 }

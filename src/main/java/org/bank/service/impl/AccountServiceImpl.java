@@ -7,7 +7,8 @@ import org.bank.repository.DebitCardRepo;
 import org.bank.repository.TransactionRepo;
 import org.bank.service.AccountService;
 import org.bank.util.ApplicationContext;
-import org.bank.util.Wage;
+import org.bank.util.Values;
+import org.bank.util.exception.EntityNotFoundException;
 import org.bank.util.exception.InsufficientMoneyException;
 
 import java.util.Optional;
@@ -22,13 +23,20 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
         debitCardRepo = ApplicationContext.getDebitCardRepo();
     }
 
+    @Override
+    public void save(Account account) {
+        if (!account.getPassword().matches(Values.PASSWORD_REGEX))
+            throw new IllegalArgumentException("Your password must be at least one uppercase, one lowercase and one number!");
+        super.save(account);
+    }
+
 
     @Override
     public void cardToCard(Account originAccount, Account destinationAccount, double amount) {
-        withdraw(originAccount, amount, Wage.CARD_TO_CARD);;
+        withdraw(originAccount, amount, Values.CARD_TO_CARD);
         deposit(destinationAccount, amount);
 
-        Transaction originTransaction = new Transaction(originAccount, TransactionType.WITHDRAW, TransactionStatus.WAITING, amount + Wage.CARD_TO_CARD);
+        Transaction originTransaction = new Transaction(originAccount, TransactionType.WITHDRAW, TransactionStatus.WAITING, amount + Values.CARD_TO_CARD);
         Transaction destinationTransaction = new Transaction(destinationAccount, TransactionType.DEPOSIT, TransactionStatus.WAITING, amount);
         originAccount.addTransaction(originTransaction);
         destinationAccount.addTransaction(destinationTransaction);
@@ -36,17 +44,31 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
         transactionRepo.create(destinationTransaction);
 
         setCartToCart(originAccount, destinationAccount
-                , originTransaction, destinationTransaction, amount);
+                , originTransaction, destinationTransaction);
     }
 
     @Override
     public double takeInventory(Account account) {
-        repository.getEntityManager().getTransaction().begin();
-        withdraw(account,Wage.INVENTORY);
-        repository.update(account);
-        transactionRepo.create(new Transaction(account, TransactionType.WITHDRAW, TransactionStatus.SUCCESS, Wage.INVENTORY));
-        repository.getEntityManager().getTransaction().commit();
-        return account.getBalance();
+        try {
+            repository.getEntityManager().getTransaction().begin();
+            withdraw(account, Values.INVENTORY);
+            repository.update(account);
+            repository.getEntityManager().getTransaction().commit();
+            Transaction transaction = new Transaction(account, TransactionType.WITHDRAW
+                    , TransactionStatus.SUCCESS, Values.INVENTORY);
+            ApplicationContext.getTransactionService().save(transaction);
+            return account.getBalance();
+        } catch (Exception e) {
+            repository.getEntityManager().getTransaction().rollback();
+            throw e;
+        }
+    }
+    @Override
+    public double takeInventory(String accountNumber, String password) {
+        Optional<Account> optionalAccount = load(accountNumber,password);
+        if(optionalAccount.isEmpty())
+            throw new EntityNotFoundException("There is no account with this account number and password!");
+        return takeInventory(optionalAccount.get());
     }
 
     private void withdraw(Account account, double amount, double wage) {
@@ -56,6 +78,7 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
             throw new InsufficientMoneyException("Insufficient account balance!");
         account.withdraw(amount + wage);
     }
+
     private void withdraw(Account account, double amount) {
         if (amount <= 0)
             throw new IllegalArgumentException("Amount is less than zero!");
@@ -64,7 +87,7 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
         account.withdraw(amount);
     }
 
-    private void setCartToCart(Account originAccount, Account destinationAccount, Transaction originTransaction, Transaction destinationTransaction, double amount) {
+    private void setCartToCart(Account originAccount, Account destinationAccount, Transaction originTransaction, Transaction destinationTransaction) {
         try {
             repository.getEntityManager().getTransaction().begin();
             originTransaction.setStatus(TransactionStatus.SUCCESS);
@@ -82,6 +105,11 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
         }
     }
 
+    private void checkAccountFormat(String accountNumber) {
+        if (!accountNumber.matches(Values.ACCOUNT_NUMBER_REGEX))
+            throw new IllegalArgumentException("Account number format is incorrect!");
+    }
+
     private void deposit(Account account, double amount) {
         if (amount <= 0)
             throw new IllegalArgumentException("Amount is less than zero!");
@@ -90,6 +118,12 @@ public class AccountServiceImpl extends BaseServiceImpl<Account, String, Account
 
     @Override
     public Optional<Account> load(DebitCard debitCard) {
-        return repository.load(debitCard);
+        return repository.read(debitCard);
+    }
+
+    @Override
+    public Optional<Account> load(String accountNumber, String password) {
+        checkAccountFormat(accountNumber);
+        return repository.read(accountNumber, password);
     }
 }

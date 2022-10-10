@@ -7,5 +7,7 @@ import org.bank.entity.DebitCard;
 import java.util.Optional;
 
 public interface AccountRepo extends BaseRepository<Account, String> {
-    Optional<Account> load(DebitCard debitCard);
+    Optional<Account> read(DebitCard debitCard);
+
+    Optional<Account> read(String accountNumber, String password);
 }

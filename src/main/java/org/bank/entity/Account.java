@@ -15,7 +15,6 @@ import java.util.Set;
 public class Account extends BaseEntity {
     public Account(Customer customer) {
         this.customer = customer;
-        transactions = new HashSet<>();
         balance = new BigDecimal(0);
     }
 
@@ -28,8 +27,13 @@ public class Account extends BaseEntity {
         this.balance = BigDecimal.valueOf(balance);
     }
 
+    public Account(Customer customer, double balance, String password) {
+        this.customer = customer;
+        this.balance = BigDecimal.valueOf(balance);
+        this.password = password;
+    }
+
     public Account() {
-        transactions = new HashSet<>();
         balance = new BigDecimal(0);
     }
 
@@ -40,6 +44,8 @@ public class Account extends BaseEntity {
     private BigDecimal balance;
     @CreationTimestamp
     private LocalDate creationDate;
+    private String password;
+
     @ManyToOne(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
@@ -54,6 +60,7 @@ public class Account extends BaseEntity {
             CascadeType.REFRESH
     })
     private DebitCard debitCard;
+
 
     @OneToMany(mappedBy = "account", cascade = {
             CascadeType.PERSIST,
@@ -74,6 +81,14 @@ public class Account extends BaseEntity {
 
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public double getBalance() {
@@ -125,7 +140,7 @@ public class Account extends BaseEntity {
     }
 
     public Set<Transaction> getTransactions() {
-        if(transactions == null)
+        if (transactions == null)
             transactions = new HashSet<>();
         return transactions;
     }
@@ -135,7 +150,7 @@ public class Account extends BaseEntity {
     }
 
     public void addTransaction(Transaction transaction) {
-        if(transactions ==null)
+        if (transactions == null)
             transactions = new HashSet<>();
         transactions.add(transaction);
     }
@@ -145,18 +160,18 @@ public class Account extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-       return Objects.equals(accountNumber, account.accountNumber) && Objects.equals(creationDate, account.creationDate) && Objects.equals(customer, account.customer);
+        return Objects.equals(accountNumber, account.accountNumber) && Objects.equals(creationDate, account.creationDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountNumber, creationDate, customer);
+        return Objects.hash(accountNumber, creationDate);
     }
 
     @Override
     public String toString() {
         return "Account number: " + accountNumber
                 + " | " + "Balance=" + balance +
-                " | Creation date: " + creationDate ;
+                " | Creation date: " + creationDate;
     }
 }

@@ -2,7 +2,7 @@ package org.bank.entity;
 
 import org.bank.base.entity.BaseEntity;
 import org.bank.util.Utility;
-import org.bank.util.Wage;
+import org.bank.util.Values;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -16,6 +16,11 @@ public class DebitCard extends BaseEntity {
 
     public DebitCard(Account account) {
         this.account = account;
+    }
+
+    public DebitCard(String cardNumber, int cvv2) {
+        this.cardNumber = cardNumber;
+        this.cvv2 = cvv2;
     }
 
     private static final long baseCardNumber = 6063_2710_1010_1000L;
@@ -35,12 +40,15 @@ public class DebitCard extends BaseEntity {
     private int cvv2;
     @Column(nullable = false)
     private LocalDate expirationDate;
+    private boolean isSuspended;
+    @Column(name = "incorrect_password")
+    private int numberOfIncorrectPasswordEntered;
 
     @PrePersist
     public void prePersist() {
         cvv2 = Utility.randomGenerator(10000);
         LocalDate now = LocalDate.now();
-        this.expirationDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()).plusMonths(Wage.EXPIRATION_CARD_TIME);
+        this.expirationDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()).plusMonths(Values.EXPIRATION_CARD_TIME);
         //Set last day of month in expirationDate.
     }
 
@@ -81,6 +89,26 @@ public class DebitCard extends BaseEntity {
     public void setBalance(double amount) {
         account.setBalance(amount);
     }
+
+    public boolean isSuspended() {
+        return isSuspended;
+    }
+
+    public void setSuspended(boolean suspended) {
+        isSuspended = suspended;
+    }
+
+    public int getNumberOfIncorrectPasswordEntered() {
+        return numberOfIncorrectPasswordEntered;
+    }
+
+    public void setNumberOfIncorrectPasswordEntered(int numberOfIncorrectPasswordEntered) {
+        this.numberOfIncorrectPasswordEntered = numberOfIncorrectPasswordEntered;
+    }
+    public void increaseNumberOfIncorrectPasswordEntered() {
+        numberOfIncorrectPasswordEntered++;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -5,4 +5,5 @@ import org.bank.entity.DebitCard;
 
 public interface DebitCardRepo extends BaseRepository<DebitCard,String > {
     boolean checkCvv2(DebitCard debitCard);
+    void increaseIncorrectPassword(String cardNumber);
 }

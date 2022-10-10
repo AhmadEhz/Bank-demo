@@ -22,7 +22,8 @@ public class Customer extends Person {
     @OneToMany(mappedBy = "customer", cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
-            CascadeType.REMOVE
+            CascadeType.REMOVE,
+            CascadeType.REFRESH
     })
     private Set<Account> accounts;
 
